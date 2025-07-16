@@ -8,3 +8,5 @@ twilight-gateway = { version = "0.16", features = ["native-tls", "simd-json", "z
 twilight-http = { version = "0.16", features = ["native-tls", "simd-json"] }
 
 tokio = { version = "1.46.1", features = ["macros", "rt-multi-thread"] }
+tracing = { version = "0.1.41" }
+tracing-subscriber = { version = "0.3.19" }
