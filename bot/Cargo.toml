@@ -5,5 +5,6 @@ edition = "2024"
 
 [dependencies]
 twilight-gateway = { version = "0.16", features = ["native-tls", "simd-json", "zlib-simd"] }
+twilight-http = { version = "0.16", features = ["native-tls", "simd-json"] }
 
 tokio = { version = "1.46.1", features = ["macros", "rt-multi-thread"] }
