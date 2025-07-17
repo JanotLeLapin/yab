@@ -41,7 +41,7 @@ pub async fn get_token(code: &str) -> Result<Option<TokenResponse>, Box<dyn Erro
         .post(&format!("https://discord.com/api/v10/oauth2/token"))
         .header("Content-Type", "application/x-www-form-urlencoded")
         .form(&data)
-        .basic_auth("1395042202702315580", Some(env::var("CLIENT_SECRET")?))
+        .basic_auth(env::var("CLIENT_ID")?, Some(env::var("CLIENT_SECRET")?))
         .send()
         .await?;
 
