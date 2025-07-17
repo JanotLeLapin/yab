@@ -35,7 +35,10 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                     .create_message(msg.channel_id)
                     .content(&format!(
                         "hello, {}! I was build with Twilight.",
-                        msg.author.global_name.as_ref().unwrap_or(&msg.author.name)
+                        msg.author
+                            .global_name
+                            .as_deref()
+                            .unwrap_or(&msg.author.name)
                     ))
                     .await?;
             }
