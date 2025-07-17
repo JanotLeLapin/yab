@@ -1,4 +1,10 @@
-use actix_web::{App, HttpResponse, HttpServer, cookie::Cookie, get, web};
+use actix_web::{
+    App, HttpRequest, HttpResponse, HttpServer, Responder,
+    cookie::Cookie,
+    get,
+    http::header::LOCATION,
+    web::{self, Redirect},
+};
 use serde::Deserialize;
 use std::{env, error::Error};
 
@@ -14,6 +20,14 @@ pub struct TokenResponse {
     expires_in: usize,
     refresh_token: String,
     scope: String,
+}
+
+#[derive(Deserialize)]
+pub struct DiscordUser {
+    id: String,
+    username: String,
+    global_name: Option<String>,
+    avatar: Option<String>,
 }
 
 pub async fn get_token(code: &str) -> Result<Option<TokenResponse>, Box<dyn Error>> {
@@ -40,22 +54,60 @@ pub async fn get_token(code: &str) -> Result<Option<TokenResponse>, Box<dyn Erro
     return Ok(json);
 }
 
+pub async fn get_user(token: &str) -> Result<Option<DiscordUser>, Box<dyn Error>> {
+    let client = reqwest::Client::new();
+    let res = client
+        .get("https://discord.com/api/v10/users/@me")
+        .header("Authorization", format!("Bearer {token}"))
+        .send()
+        .await?;
+
+    if !res.status().is_success() {
+        return Ok(None);
+    }
+
+    let text = res.text().await?;
+    let json = serde_json::from_str(&text)?;
+    return Ok(json);
+}
+
 #[get("/")]
-async fn index(query: web::Query<IndexQuery>) -> Result<HttpResponse, Box<dyn Error>> {
-    let mut res = HttpResponse::Ok();
+async fn index(
+    query: web::Query<IndexQuery>,
+    req: HttpRequest,
+) -> Result<HttpResponse, Box<dyn Error>> {
     if let Some(code) = query.code.as_deref() {
         let token = get_token(code).await?;
         if let Some(access_token) = token.map(|token| token.access_token) {
-            res.cookie(
-                Cookie::build("access_token", access_token)
-                    .secure(true)
-                    .http_only(true)
-                    .finish(),
-            );
+            Ok(HttpResponse::SeeOther()
+                .insert_header((LOCATION, "/"))
+                .cookie(
+                    Cookie::build("access_token", access_token)
+                        .secure(true)
+                        .http_only(true)
+                        .finish(),
+                )
+                .finish())
+        } else {
+            Ok(HttpResponse::InternalServerError().finish())
         }
+    } else if let Some(token) = req
+        .cookie("access_token")
+        .as_ref()
+        .map(|cookie| cookie.value())
+    {
+        let res = get_user(token).await?;
+        if let Some(user) = res {
+            Ok(HttpResponse::Ok().body(format!(
+                "hello, {}",
+                user.global_name.as_deref().unwrap_or(&user.username)
+            )))
+        } else {
+            Ok(HttpResponse::InternalServerError().finish())
+        }
+    } else {
+        Ok(HttpResponse::Ok().body("hello stranger"))
     }
-
-    Ok(res.body("hello, world!"))
 }
 
 #[tokio::main]
