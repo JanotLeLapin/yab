@@ -7,7 +7,7 @@ use tracing::{debug, info, warn};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
+        .with_max_level(tracing::Level::INFO)
         .init();
 
     let token = env::var("DISCORD_TOKEN")?;
