@@ -31,9 +31,8 @@ pub async fn page(query: web::Query<IndexQuery>) -> Result<HttpResponse, Box<dyn
     Ok(HttpResponse::Ok().body(maud::html! {
         head {
             script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js" {}
-            style {
-                (grass::include!("web/style/index.scss"))
-            }
+            style { (grass::include!("web/style/index.scss")) }
+            style { (grass::include!("web/style/core.scss")) }
         }
         body {
             header {
