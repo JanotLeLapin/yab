@@ -17,6 +17,9 @@ pub async fn component(req: HttpRequest) -> Result<Markup, Box<dyn Error>> {
 
     if let Some(user) = user {
         Ok(html! {
+            @if let Some(avatar) = user.avatar {
+                img src={ "https://cdn.discordapp.com/avatars/" (user.id) "/" (avatar) ".png?size=32" };
+            }
             h3 { (user.global_name.as_deref().unwrap_or(&user.username)) }
         })
     } else {
