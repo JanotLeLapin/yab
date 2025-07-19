@@ -14,10 +14,10 @@ pub async fn page(
     query: web::Query<IndexQuery>,
     req: HttpRequest,
 ) -> Result<HttpResponse, Box<dyn Error>> {
-    if let Some(code) = query.code.as_deref() {
+    let text = if let Some(code) = query.code.as_deref() {
         let token = discord::get_token(code).await?;
         if let Some(access_token) = token.map(|token| token.access_token) {
-            Ok(HttpResponse::SeeOther()
+            return Ok(HttpResponse::SeeOther()
                 .insert_header((LOCATION, "/"))
                 .cookie(
                     Cookie::build("access_token", access_token)
@@ -25,9 +25,9 @@ pub async fn page(
                         .http_only(true)
                         .finish(),
                 )
-                .finish())
+                .finish());
         } else {
-            Ok(HttpResponse::InternalServerError().finish())
+            return Ok(HttpResponse::InternalServerError().finish());
         }
     } else if let Some(token) = req
         .cookie("access_token")
@@ -36,14 +36,21 @@ pub async fn page(
     {
         let res = discord::get_user(token).await?;
         if let Some(user) = res {
-            Ok(HttpResponse::Ok().body(format!(
+            format!(
                 "hello, {}",
                 user.global_name.as_deref().unwrap_or(&user.username)
-            )))
+            )
         } else {
-            Ok(HttpResponse::InternalServerError().finish())
+            return Ok(HttpResponse::InternalServerError().finish());
         }
     } else {
-        Ok(HttpResponse::Ok().body("hello stranger"))
-    }
+        "hello stranger".to_string()
+    };
+
+    Ok(HttpResponse::Ok().body(maud::html! {
+        body {
+            h1 { "yab" }
+            p { (text) }
+        }
+    }))
 }
