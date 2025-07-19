@@ -2,6 +2,7 @@ use actix_web::{App, HttpServer};
 
 mod discord;
 
+mod components;
 mod pages;
 
 #[tokio::main]
@@ -10,8 +11,12 @@ pub async fn main() -> std::io::Result<()> {
         .with_max_level(tracing::Level::INFO)
         .init();
 
-    HttpServer::new(|| App::new().service(pages::index::page))
-        .bind(("0.0.0.0", 8080))?
-        .run()
-        .await
+    HttpServer::new(|| {
+        App::new()
+            .service(pages::index::page)
+            .service(components::profile::component)
+    })
+    .bind(("0.0.0.0", 8080))?
+    .run()
+    .await
 }

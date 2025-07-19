@@ -10,11 +10,8 @@ struct IndexQuery {
 }
 
 #[get("/")]
-pub async fn page(
-    query: web::Query<IndexQuery>,
-    req: HttpRequest,
-) -> Result<HttpResponse, Box<dyn Error>> {
-    let text = if let Some(code) = query.code.as_deref() {
+pub async fn page(query: web::Query<IndexQuery>) -> Result<HttpResponse, Box<dyn Error>> {
+    if let Some(code) = query.code.as_deref() {
         let token = discord::get_token(code).await?;
         if let Some(access_token) = token.map(|token| token.access_token) {
             return Ok(HttpResponse::SeeOther()
@@ -29,28 +26,18 @@ pub async fn page(
         } else {
             return Ok(HttpResponse::InternalServerError().finish());
         }
-    } else if let Some(token) = req
-        .cookie("access_token")
-        .as_ref()
-        .map(|cookie| cookie.value())
-    {
-        let res = discord::get_user(token).await?;
-        if let Some(user) = res {
-            format!(
-                "hello, {}",
-                user.global_name.as_deref().unwrap_or(&user.username)
-            )
-        } else {
-            return Ok(HttpResponse::InternalServerError().finish());
-        }
-    } else {
-        "hello stranger".to_string()
-    };
+    }
 
     Ok(HttpResponse::Ok().body(maud::html! {
+        head {
+            script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js" {}
+        }
         body {
-            h1 { "yab" }
-            p { (text) }
+            header {
+                h1 { "yab" }
+                .profile hx-get="/api/profile" hx-trigger="load" {}
+            }
+            p { "Welcome to the yab home page" }
         }
     }))
 }
