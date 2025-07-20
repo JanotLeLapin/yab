@@ -29,14 +29,16 @@ pub async fn page(query: web::Query<IndexQuery>) -> Result<HttpResponse, Box<dyn
         }
     }
 
-    Ok(HttpResponse::Ok().body(crate::layout::layout(
-        "yab",
-        Some(grass::include!("web/style/index.scss")),
-        html! {
-            body {
-                (crate::components::header::component())
-                h1 { "Welcome to the yab home page" }
-            }
-        },
-    )))
+    Ok(HttpResponse::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(crate::layout::layout(
+            "yab",
+            Some(grass::include!("web/style/index.scss")),
+            html! {
+                body {
+                    (crate::components::header::component())
+                    h1 { "Welcome to the yab home page" }
+                }
+            },
+        )))
 }
