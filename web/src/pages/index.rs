@@ -36,7 +36,7 @@ pub async fn page(query: web::Query<IndexQuery>) -> Result<HttpResponse, Box<dyn
         }
         body {
             (crate::components::header::component())
-            p { "Welcome to the yab home page" }
+            h1 { "Welcome to the yab home page" }
         }
     }))
 }

@@ -20,7 +20,7 @@ pub async fn profile(req: HttpRequest) -> Result<Markup, Box<dyn Error>> {
             @if let Some(avatar) = user.avatar {
                 img src={ "https://cdn.discordapp.com/avatars/" (user.id) "/" (avatar) ".png?size=32" };
             }
-            h3 { (user.global_name.as_deref().unwrap_or(&user.username)) }
+            p { (user.global_name.as_deref().unwrap_or(&user.username)) }
         })
     } else {
         Ok(html! {
@@ -32,7 +32,7 @@ pub async fn profile(req: HttpRequest) -> Result<Markup, Box<dyn Error>> {
 pub fn component() -> Markup {
     html! {
         header {
-            h1 { "yab" }
+            h3 { "yab" }
             .profile hx-get="/_fragments/profile" hx-trigger="load" {}
         }
     }
