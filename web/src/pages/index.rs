@@ -1,6 +1,7 @@
 use crate::discord;
 
 use actix_web::{HttpResponse, cookie::Cookie, get, http::header::LOCATION, web};
+use maud::html;
 use serde::Deserialize;
 use std::error::Error;
 
@@ -28,15 +29,14 @@ pub async fn page(query: web::Query<IndexQuery>) -> Result<HttpResponse, Box<dyn
         }
     }
 
-    Ok(HttpResponse::Ok().body(maud::html! {
-        head {
-            script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js" {}
-            style { (grass::include!("web/style/index.scss")) }
-            style { (grass::include!("web/style/core.scss")) }
-        }
-        body {
-            (crate::components::header::component())
-            h1 { "Welcome to the yab home page" }
-        }
-    }))
+    Ok(HttpResponse::Ok().body(crate::layout::layout(
+        "yab",
+        Some(grass::include!("web/style/index.scss")),
+        html! {
+            body {
+                (crate::components::header::component())
+                h1 { "Welcome to the yab home page" }
+            }
+        },
+    )))
 }

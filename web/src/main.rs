@@ -3,6 +3,7 @@ use actix_web::{App, HttpServer};
 mod discord;
 
 mod components;
+mod layout;
 mod pages;
 
 #[tokio::main]
