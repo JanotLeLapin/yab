@@ -14,7 +14,7 @@ pub async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .service(pages::index::page)
-            .service(components::profile::component)
+            .service(components::header::profile)
     })
     .bind(("0.0.0.0", 8080))?
     .run()

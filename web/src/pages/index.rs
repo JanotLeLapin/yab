@@ -1,6 +1,6 @@
 use crate::discord;
 
-use actix_web::{HttpRequest, HttpResponse, cookie::Cookie, get, http::header::LOCATION, web};
+use actix_web::{HttpResponse, cookie::Cookie, get, http::header::LOCATION, web};
 use serde::Deserialize;
 use std::error::Error;
 
@@ -35,10 +35,7 @@ pub async fn page(query: web::Query<IndexQuery>) -> Result<HttpResponse, Box<dyn
             style { (grass::include!("web/style/core.scss")) }
         }
         body {
-            header {
-                h1 { "yab" }
-                .profile hx-get="/api/profile" hx-trigger="load" {}
-            }
+            (crate::components::header::component())
             p { "Welcome to the yab home page" }
         }
     }))

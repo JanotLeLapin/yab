@@ -4,8 +4,8 @@ use std::error::Error;
 
 use crate::discord;
 
-#[get("/api/profile")]
-pub async fn component(req: HttpRequest) -> Result<Markup, Box<dyn Error>> {
+#[get("/_fragments/profile")]
+pub async fn profile(req: HttpRequest) -> Result<Markup, Box<dyn Error>> {
     let user = if let Some(token) = req.cookie("access_token") {
         match discord::get_user(token.value()).await {
             Ok(Some(user)) => Some(user),
@@ -26,5 +26,14 @@ pub async fn component(req: HttpRequest) -> Result<Markup, Box<dyn Error>> {
         Ok(html! {
             a { "Login" }
         })
+    }
+}
+
+pub fn component() -> Markup {
+    html! {
+        header {
+            h1 { "yab" }
+            .profile hx-get="/_fragments/profile" hx-trigger="load" {}
+        }
     }
 }
